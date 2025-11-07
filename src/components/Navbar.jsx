@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "../lib/utils";
-import { Menu, MenuIcon, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const navItems = [
   { name: "Home", href: "#hero" },
@@ -12,7 +12,7 @@ const navItems = [
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setISMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,10 +23,19 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Disable background scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isMenuOpen]);
+
   return (
     <nav
       className={cn(
-        "fixed w-full z-40 transition-all duration-300",
+        "fixed w-full z-50 transition-all duration-300",
         isScrolled
           ? "bg-background/80 backdrop-blur-md shadow-xs "
           : "bg-transparent py-5"
@@ -42,7 +51,8 @@ const Navbar = () => {
             Portfolio
           </span>
         </a>
-        {/* desktop nav */}
+
+        {/* Desktop nav */}
         <div className="hidden md:flex space-x-8">
           {navItems.map((item, key) => (
             <a
@@ -55,20 +65,19 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* mobile nav */}
-
+        {/* Mobile nav toggle */}
         <button
-          onClick={() => setISMenuOpen((prev) => !prev)}
+          onClick={() => setIsMenuOpen((prev) => !prev)}
           className="md:hidden p-2 z-50 text-foreground"
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         >
-          {isMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
+        {/* Mobile menu overlay */}
         <div
           className={cn(
-            "fixed inset-0 bg-background/95 backdrop-blur-md z-40 flex flex-col items-center justify-center",
-            "transition-all duration-300 md:hidden",
+            "fixed inset-0 bg-background/95 backdrop-blur-md z-40 flex flex-col items-center justify-center transition-opacity duration-300 md:hidden",
             isMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -79,6 +88,7 @@ const Navbar = () => {
               <a
                 key={key}
                 href={item.href}
+                onClick={() => setIsMenuOpen(false)} // Close menu on click
                 className="text-foreground/80 hover:text-primary transition-colors duration-300"
               >
                 {item.name}
